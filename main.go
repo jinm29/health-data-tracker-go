@@ -12,7 +12,6 @@ import (
     "github.com/gorilla/websocket"
 )
 
-// Define the upgrader to upgrade HTTP connections to WebSocket
 var upgrader = websocket.Upgrader{
     CheckOrigin: func(r *http.Request) bool {
         return true // Allow requests from any origin
