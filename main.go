@@ -22,8 +22,8 @@ var upgrader = websocket.Upgrader{
 // Store user-specific WebSocket connections
 
 var (
-    userConnections = make(map[string]map[string]*websocket.Conn) // Allow multiple connections per user
-    mu              sync.Mutex                            // Mutex for synchronizing access to userConnections
+    userConnections = make(map[string]map[string]*websocket.Conn)
+    mu              sync.Mutex
 )
 
 // WebSocket handler for upgrading connections and registering user connections
@@ -46,7 +46,6 @@ func handleWebSocket(c *gin.Context) {
     }
     defer conn.Close()
 
-    // Store the connection in the userConnections map
     mu.Lock()
     userConnections[userID][connectionID] = conn
     log.Printf("User  %s connected via WebSocket. Total connections: %d", userID, len(userConnections[userID]))
@@ -87,13 +86,11 @@ func main() {
 
     r := gin.Default()
 
-    // Initialize InfluxDB (if needed)
     config.InitInfluxDB()
 
-    // Setup MQTT in a goroutine (if needed)
     go config.SetupMQTT(userConnections)
 
-    // Define routes
+    //routes
     r.POST("/add-patient", services.AddPatient)
     r.GET("/patients", services.GetAllPatients)
     r.GET("/patient/:user_id", services.GetSinglePatientData)
