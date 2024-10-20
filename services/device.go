@@ -41,7 +41,6 @@ func AssignDeviceToPatient(c *gin.Context) {
 	var data sqlc.AssignDeviceToPatientParams
 	var assignTo sqlc.AssignDeviceParams
 
-	// Bind JSON input to the data structure
 	if err := c.ShouldBindJSON(&data); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
