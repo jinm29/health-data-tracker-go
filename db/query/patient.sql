@@ -11,14 +11,13 @@ SELECT
     p.id AS patient_id,
     p.full_name,
     p.age,
-    p.gender,
     p.contact_info,
     wd.id AS device_id,
     wd.device_name,
     wd.device_type
 FROM 
     patients p
-INNER JOIN 
+LEFT JOIN 
     wearable_devices wd ON p.assigned_device_id = wd.id
 WHERE 
     p.id = $1;

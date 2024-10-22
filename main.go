@@ -7,11 +7,13 @@ import (
 	"sync"
 
 	"github.com/Fidel-wole/wearable-integration/config"
+	"github.com/Fidel-wole/wearable-integration/controller"
 	"github.com/Fidel-wole/wearable-integration/db"
 	"github.com/Fidel-wole/wearable-integration/services"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	// "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 )
 
 var upgrader = websocket.Upgrader{
@@ -20,14 +22,11 @@ var upgrader = websocket.Upgrader{
     },
 }
 
-// Store user-specific WebSocket connections
-
 var (
     userConnections = make(map[string]map[string]*websocket.Conn)
     mu              sync.Mutex
 )
 
-// WebSocket handler for upgrading connections and registering user connections
 func handleWebSocket(c *gin.Context) {
     userID := c.Param("user_id")
     connectionID := c.Param("connection_id")
@@ -70,7 +69,7 @@ func handleWebSocket(c *gin.Context) {
     logConnectedUsers()
     mu.Unlock()
 }
-// logConnectedUsers logs all currently connected users
+
 func logConnectedUsers() {
     mu.Lock()
     defer mu.Unlock()
@@ -82,24 +81,38 @@ func logConnectedUsers() {
 }
 
 func main() {
-  //  godotenv.Load()
+    godotenv.Load()
     // Initialize the database
     db.InitDB()
 
     r := gin.Default()
 
-    config.InitInfluxDB()
+    // CORS middleware configuration
+    r.Use(cors.New(cors.Config{
+        AllowAllOrigins:  true, // Allows all origins
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"}, // Allowed HTTP methods
+        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"}, // Allowed headers
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true, // Allow credentials (cookies, authorization headers)
+    }))
+
+    influxDBClient := config.InitInfluxDB()
 
     go config.SetupMQTT(userConnections)
+    // Initialize InfluxDB
 
-    //routes
+
+    // Initialize the DataService and HealthDataController
+    dataService := &services.DataService{InfluxDBClient: influxDBClient}
+    healthDataController := controller.NewHealthDataController(dataService)
+    // Routes
     r.POST("/add-patient", services.AddPatient)
     r.GET("/patients", services.GetAllPatients)
     r.GET("/patient/:user_id", services.GetSinglePatientData)
     r.POST("/add-device", services.InsertWearableDevice)
     r.GET("/available-devices", services.GetAvailableDevices)
     r.PUT("/assign-device", services.AssignDeviceToPatient)
-
+    r.GET("/health-stats/:patient_id", healthDataController.GetHealthDataByDeviceID)
     // WebSocket route
     r.GET("/ws/:user_id", handleWebSocket)
 

@@ -12,18 +12,29 @@ import (
 	"github.com/InfluxCommunity/influxdb3-go/influxdb3"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gorilla/websocket"
-	// "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 )
 
-var MQTTClient mqtt.Client
-var InfluxDBClient *influxdb3.Client
-var DataService *services.DataService
+var (
+    MQTTClient    mqtt.Client
+    InfluxDBClient *influxdb3.Client
+    DataService    *services.DataService
+)
 
-func InitInfluxDB() {
-   // godotenv.Load()
+// InitInfluxDB initializes the InfluxDB client and returns it.
+func InitInfluxDB() *influxdb3.Client {
+    // Load environment variables
+    if err := godotenv.Load(); err != nil {
+        log.Fatalf("Error loading .env file: %v", err)
+    }
+
     url := "https://us-east-1-1.aws.cloud2.influxdata.com"
     token := os.Getenv("INFLUXDB_TOKEN")
+    if token == "" {
+        log.Fatal("INFLUXDB_TOKEN environment variable is not set")
+    }
 
+    // Create a new InfluxDB client
     client, err := influxdb3.New(influxdb3.ClientConfig{
         Host:  url,
         Token: token,
@@ -32,9 +43,11 @@ func InitInfluxDB() {
         log.Fatalf("Failed to create InfluxDB client: %v", err)
     }
 
-    InfluxDBClient = client
-    DataService = &services.DataService{InfluxDBClient: InfluxDBClient}
+    // Initialize the DataService with the InfluxDB client
+    DataService = &services.DataService{InfluxDBClient: client}
+
     log.Println("Connected to InfluxDB")
+    return client
 }
 
 func SetupMQTT(userConnections map[string]map[string]*websocket.Conn) {

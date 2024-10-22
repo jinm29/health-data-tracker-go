@@ -106,26 +106,27 @@ SELECT
     wd.device_type
 FROM 
     patients p
-INNER JOIN 
+LEFT JOIN 
     wearable_devices wd ON p.assigned_device_id = wd.id
 WHERE 
     p.id = $1
 `
 
 type GetPatientWithDeviceRow struct {
-	PatientID   int32          `json:"patient_id"`
-	FullName    string         `json:"full_name"`
-	Age         *int  `json:"age"`
-	Gender      *string `json:"gender"`
-	ContactInfo string         `json:"contact_info"`
-	DeviceID    int32          `json:"device_id"`
-	DeviceName  string         `json:"device_name"`
-	DeviceType  string         `json:"device_type"`
+	PatientID   int32   `json:"patient_id"`
+	FullName    string  `json:"full_name"`
+	Age         *int    `json:"age"`         
+	Gender      *string `json:"gender"`     
+	ContactInfo string  `json:"contact_info"`
+	DeviceID    *int32  `json:"device_id"`   // Pointer for DeviceID to handle NULL
+	DeviceName  *string `json:"device_name"`  // Pointer for DeviceName to handle NULL
+	DeviceType  *string `json:"device_type"`  // Pointer for DeviceType to handle NULL
 }
 
 func (q *Queries) GetPatientWithDevice(ctx context.Context, id int32) (GetPatientWithDeviceRow, error) {
 	row := q.db.QueryRowContext(ctx, getPatientWithDevice, id)
 	var i GetPatientWithDeviceRow
+
 	err := row.Scan(
 		&i.PatientID,
 		&i.FullName,
@@ -133,8 +134,14 @@ func (q *Queries) GetPatientWithDevice(ctx context.Context, id int32) (GetPatien
 		&i.Gender,
 		&i.ContactInfo,
 		&i.DeviceID,
-		&i.DeviceName,
-		&i.DeviceType,
+		&i.DeviceName,  // Now a pointer
+		&i.DeviceType,  // Now a pointer
 	)
-	return i, err
+
+	if err != nil {
+		return i, err
+	}
+
+	return i, nil
 }
+

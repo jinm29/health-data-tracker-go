@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/Fidel-wole/wearable-integration/db/sqlc" // Import the generated sqlc package
-	// "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq" // PostgreSQL driver
 )
 
@@ -16,10 +16,10 @@ var DB *sql.DB            // Database connection
 // InitDB initializes the database connection and the SQLC Queries instance
 func InitDB() {
 	var err error
-	// err = godotenv.Load()
-	// if err != nil {
-	//   log.Fatal("Error loading .env file")
-	// }
+	err = godotenv.Load()
+	if err != nil {
+	  log.Fatal("Error loading .env file")
+	}
 	connStr := os.Getenv("DB_URL")
 	
 	DB, err = sql.Open("postgres", connStr)

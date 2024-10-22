@@ -14,7 +14,7 @@ type Patients struct {
 	// Age in years
 	Age *int `json:"age"`
 	// Values: Male, Female, Non-binary, etc.
-	Gender *int `json:"gender"`
+	Gender *string `json:"gender"`
 	// Email or phone number for communication
 	ContactInfo string `json:"contact_info"`
 	// Reference to assigned device
