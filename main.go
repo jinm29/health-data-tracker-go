@@ -1,15 +1,17 @@
 package main
 
 import (
-    "log"
-    "net/http"
-    "sync"
+	"log"
+	"net/http"
+	"os"
+	"sync"
 
-    "github.com/Fidel-wole/wearable-integration/config"
-    "github.com/Fidel-wole/wearable-integration/db"
-    "github.com/Fidel-wole/wearable-integration/services"
-    "github.com/gin-gonic/gin"
-    "github.com/gorilla/websocket"
+	"github.com/Fidel-wole/wearable-integration/config"
+	"github.com/Fidel-wole/wearable-integration/db"
+	"github.com/Fidel-wole/wearable-integration/services"
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
+	"github.com/joho/godotenv"
 )
 
 var upgrader = websocket.Upgrader{
@@ -80,6 +82,7 @@ func logConnectedUsers() {
 }
 
 func main() {
+    godotenv.Load()
     // Initialize the database
     db.InitDB()
 
@@ -100,8 +103,13 @@ func main() {
     // WebSocket route
     r.GET("/ws/:user_id", handleWebSocket)
 
+    port := os.Getenv("PORT")
+    if port == "" {
+        port = "8080" // Default to 8080 if not set
+    }
+
     // Start the server
-    if err := r.Run(":8080"); err != nil {
+    if err := r.Run(":" + port); err != nil {
         log.Fatalf("Could not run the server: %v", err)
     }
 }
