@@ -11,7 +11,7 @@ import (
 	"github.com/Fidel-wole/wearable-integration/services"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 )
 
 var upgrader = websocket.Upgrader{
@@ -82,7 +82,7 @@ func logConnectedUsers() {
 }
 
 func main() {
-    godotenv.Load()
+  //  godotenv.Load()
     // Initialize the database
     db.InitDB()
 

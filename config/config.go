@@ -12,7 +12,7 @@ import (
 	"github.com/InfluxCommunity/influxdb3-go/influxdb3"
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/gorilla/websocket"
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 )
 
 var MQTTClient mqtt.Client
@@ -20,7 +20,7 @@ var InfluxDBClient *influxdb3.Client
 var DataService *services.DataService
 
 func InitInfluxDB() {
-    godotenv.Load()
+   // godotenv.Load()
     url := "https://us-east-1-1.aws.cloud2.influxdata.com"
     token := os.Getenv("INFLUXDB_TOKEN")
 
