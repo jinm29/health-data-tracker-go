@@ -21,13 +21,6 @@ InfluxDB
 
 MQTT Broker (e.g., Mosquitto)
 
-## Clone the repository
-
-```bash
-git clone https://github.com/Fidel-wole/health_data_tracker.git
-cd health_data_tracker
-```
-
 ## Set up environment variables
 Create a .env file in the root directory and add your InfluxDB token:
 ```plaintext
@@ -62,13 +55,3 @@ To test the MQTT integration, you can publish test messages using an MQTT client
 ```bash
 mosquitto_pub -h localhost -t wearable/data -m '{"device_id": "device_199", "heart_rate": 175, "oxygen_level": 75}'
 ```
-## Contributing
-
-Pull requests are welcome. For major changes, please open an issue first
-to discuss what you would like to change.
-
-Please make sure to update tests as appropriate.
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)
